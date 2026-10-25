@@ -1,0 +1,33 @@
+.card {
+  background: #f7f8fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 140px;
+}
+
+.value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2328;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.8125rem;
+  color: #57606a;
+  font-weight: 500;
+}
+
+/* Variant: critical — red accent on the value */
+.critical .value {
+  color: #c0392b;
+}
+
+/* Variant: today — blue accent */
+.today .value {
+  color: #3b82d4;
+}
