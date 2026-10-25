@@ -3,36 +3,20 @@
 This module owns the transition logic for a scan's lifecycle:
     pending → running → completed | failed
 
-The agent pipeline call is **stubbed** in this sub-task and will be wired to the
-real LangGraph pipeline in Sub-Task 6.
+It delegates the actual scan work to the LangGraph pipeline built by
+:func:`~app.agents.graph.build_scan_graph`.
 """
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from datetime import datetime, timezone
 
+from app.agents.graph import build_scan_graph
 from app.db.session import AsyncSessionLocal
 from app.services import scan_service
 
 logger = logging.getLogger(__name__)
-
-
-async def _stub_pipeline(url: str) -> dict:
-    """Stub replacement for the real LangGraph agent pipeline.
-
-    Simulates async work by sleeping for 2 seconds before returning a
-    placeholder report.  This will be replaced in Sub-Task 6.
-
-    Args:
-        url: The URL that would be scanned.
-
-    Returns:
-        A minimal placeholder report dict.
-    """
-    await asyncio.sleep(2)
-    return {"stub": True, "url": url, "findings": []}
 
 
 async def run_scan(scan_id: str, url: str) -> None:
@@ -56,7 +40,10 @@ async def run_scan(scan_id: str, url: str) -> None:
         await scan_service.update_scan_status(scan_id, "running", db)
 
     try:
-        report = await _stub_pipeline(url)
+        graph = build_scan_graph()
+        result = await graph.ainvoke({"url": url, "raw_responses": [], "findings": [],
+                                      "rag_context": [], "report": {}})
+        report = result.get("report", {})
     except Exception as exc:  # noqa: BLE001
         logger.exception("Scan %s failed: %s", scan_id, exc)
         async with AsyncSessionLocal() as db:
