@@ -150,7 +150,7 @@ async def test_protected_route_with_valid_token(
     no seeded data, we override ``get_current_admin`` to bypass the DB lookup
     and return a synthetic Admin stub for this test only.
     """
-    from unittest.mock import AsyncMock, MagicMock
+    from unittest.mock import MagicMock
 
     from app.dependencies import get_current_admin
     from app.db.models.admin import Admin
@@ -159,10 +159,11 @@ async def test_protected_route_with_valid_token(
     stub_admin = MagicMock(spec=Admin)
     stub_admin.username = TEST_USERNAME
 
+    async def _stub_get_admin():
+        return stub_admin
+
     application = create_app()
-    application.dependency_overrides[get_current_admin] = AsyncMock(
-        return_value=stub_admin
-    )
+    application.dependency_overrides[get_current_admin] = _stub_get_admin
 
     transport = ASGITransport(app=application)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:

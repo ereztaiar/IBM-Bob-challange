@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Index, JSON, String, Text, text
+from sqlalchemy import DateTime, Index, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -38,7 +39,7 @@ class Scan(Base):
     )
     created_at: Mapped[object] = mapped_column(
         DateTime(timezone=True),
-        server_default=text("now()"),
+        default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
     completed_at: Mapped[object] = mapped_column(

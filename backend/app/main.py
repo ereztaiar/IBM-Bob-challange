@@ -13,7 +13,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import admin, auth, health
+from app.routers import admin, auth, health, scans
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +104,7 @@ def create_app() -> FastAPI:
     application.include_router(health.router)
     application.include_router(auth.router)
     application.include_router(admin.router)
+    application.include_router(scans.router)
 
     return application
 
