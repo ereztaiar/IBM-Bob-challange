@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     ADMIN_PASSWORD: str = "changeme"
     JWT_SECRET: str = "change-me-in-production"
     RAG_SERVICE_URL: str = "http://rag:8001"
+    FRONTEND_USER_URL: str = "http://localhost:5173"
+    FRONTEND_ADMIN_URL: str = "http://localhost:5174"
+    JWT_EXPIRE_MINUTES: int = 60
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
