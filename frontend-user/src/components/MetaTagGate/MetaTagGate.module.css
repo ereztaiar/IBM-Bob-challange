@@ -1,0 +1,44 @@
+.gate {
+  background: #f7f8fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  max-width: 640px;
+  margin: 0 auto 2rem;
+}
+
+.gate h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: #1f2328;
+}
+
+.gate p {
+  margin: 0 0 1rem;
+  color: #57606a;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.gate ul {
+  margin: 0 0 1.25rem 1.25rem;
+  padding: 0;
+  color: #57606a;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.ackButton {
+  background: #3b82d4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1.4rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ackButton:hover {
+  background: #2d6bbf;
+}
