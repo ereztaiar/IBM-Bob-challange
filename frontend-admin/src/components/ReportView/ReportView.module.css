@@ -47,3 +47,13 @@
 }
 
 .item { margin: 0; }
+
+.score {
+  margin: 0.75rem 0 0;
+  font-weight: 600;
+}
+
+.recommendations {
+  margin: 0 0 1.5rem;
+  padding-left: 1.25rem;
+}

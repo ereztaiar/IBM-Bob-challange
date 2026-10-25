@@ -7,12 +7,12 @@ import FindingCard from "../components/ReportView/FindingCard";
 import type { Finding } from "../types/scan";
 
 const baseFinding: Finding = {
-  check: "xss",
+  category: "xss",
   title: "Cross-Site Scripting",
   description: "Reflected XSS vulnerability detected.",
   severity: "high",
   remediation: "Sanitise user input.",
-  references: ["https://owasp.org/xss"],
+  evidence: "<script>alert(1)</script> reflected in response",
 };
 
 describe("FindingCard", () => {
@@ -38,10 +38,11 @@ describe("FindingCard", () => {
     expect(screen.getByText("Sanitise user input.")).toBeInTheDocument();
   });
 
-  it("renders references as links", () => {
+  it("renders the evidence", () => {
     render(<FindingCard finding={baseFinding} />);
-    const link = screen.getByRole("link", { name: /owasp.org/i });
-    expect(link).toHaveAttribute("href", "https://owasp.org/xss");
+    expect(
+      screen.getByText("<script>alert(1)</script> reflected in response")
+    ).toBeInTheDocument();
   });
 
   it("omits remediation section when not provided", () => {

@@ -138,7 +138,7 @@ function ScanTable({
               </tr>
             )}
             {scans.map((scan) => (
-              <tr key={scan.id} className={styles.row}>
+              <tr key={scan.scan_id} className={styles.row}>
                 <td className={styles.td}>{scan.url}</td>
                 <td className={styles.td}>
                   <span
@@ -151,7 +151,7 @@ function ScanTable({
                 <td className={styles.td}>
                   <button
                     className={styles.viewBtn}
-                    onClick={() => navigate(`/scans/${scan.id}`)}
+                    onClick={() => navigate(`/scans/${scan.scan_id}`)}
                     aria-label={`View scan for ${scan.url}`}
                   >
                     View

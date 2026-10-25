@@ -47,6 +47,9 @@ function ScanDetailPage(): JSX.Element {
           <p className={styles.meta}>
             <strong>Status:</strong> {scan.status}
           </p>
+          {scan.error_message && (
+            <p className={styles.error}>{scan.error_message}</p>
+          )}
           {scan.completed_at && (
             <p className={styles.meta}>
               <strong>Completed:</strong>{" "}
@@ -54,8 +57,8 @@ function ScanDetailPage(): JSX.Element {
             </p>
           )}
 
-          {scan.report ? (
-            <ReportView report={scan.report} />
+          {scan.report_json ? (
+            <ReportView report={scan.report_json} />
           ) : (
             <p className={styles.pending}>
               Report not yet available — scan is {scan.status}.

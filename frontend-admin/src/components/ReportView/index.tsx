@@ -31,7 +31,19 @@ function ReportView({ report }: ReportViewProps): JSX.Element {
         <div className={styles.summary}>
           <h2 className={styles.summaryTitle}>Summary</h2>
           <p className={styles.summaryText}>{report.summary}</p>
+          <p className={styles.score}>Risk score: {report.risk_score}/100</p>
         </div>
+      )}
+
+      {report.recommendations?.length > 0 && (
+        <>
+          <h2 className={styles.findingsTitle}>Top Recommendations</h2>
+          <ul className={styles.recommendations}>
+            {report.recommendations.map((rec, i) => (
+              <li key={i}>{rec}</li>
+            ))}
+          </ul>
+        </>
       )}
 
       <h2 className={styles.findingsTitle}>
@@ -43,7 +55,7 @@ function ReportView({ report }: ReportViewProps): JSX.Element {
       ) : (
         <ul className={styles.list}>
           {sorted.map((f, i) => (
-            <li key={`${f.check}-${i}`} className={styles.item}>
+            <li key={`${f.category}-${i}`} className={styles.item}>
               <FindingCard finding={f} />
             </li>
           ))}

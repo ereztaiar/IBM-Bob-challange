@@ -20,7 +20,7 @@ const SEVERITY_CLASS: Record<string, string> = {
 };
 
 /**
- * Renders a finding card with severity badge, title, description, and remediation.
+ * Renders a finding card with severity badge, title, description, remediation, and evidence.
  * @param props.finding - The Finding object to render.
  */
 function FindingCard({ finding }: FindingCardProps): JSX.Element {
@@ -47,18 +47,10 @@ function FindingCard({ finding }: FindingCardProps): JSX.Element {
         </div>
       )}
 
-      {finding.references && finding.references.length > 0 && (
+      {finding.evidence && (
         <div className={styles.section}>
-          <h4 className={styles.sectionTitle}>References</h4>
-          <ul className={styles.refList}>
-            {finding.references.map((ref) => (
-              <li key={ref}>
-                <a href={ref} target="_blank" rel="noopener noreferrer">
-                  {ref}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <h4 className={styles.sectionTitle}>Evidence</h4>
+          <pre className={styles.evidence}>{finding.evidence}</pre>
         </div>
       )}
     </article>
