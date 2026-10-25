@@ -66,6 +66,11 @@ function ScanTable({
   }
 
   /** Arrow indicator for the active sort column. */
+  function ariaSort(col: SortColumn): "none" | "ascending" | "descending" {
+    if (sortColumn !== col) return "none";
+    return sortDir === "asc" ? "ascending" : "descending";
+  }
+
   function sortIndicator(col: SortColumn): string {
     if (sortColumn !== col) return "";
     return sortDir === "asc" ? " ↑" : " ↓";
@@ -103,21 +108,21 @@ function ScanTable({
               <th
                 className={styles.th}
                 onClick={() => handleSort("url")}
-                aria-sort={sortColumn === "url" ? sortDir : "none"}
+                aria-sort={ariaSort("url")}
               >
                 URL{sortIndicator("url")}
               </th>
               <th
                 className={styles.th}
                 onClick={() => handleSort("status")}
-                aria-sort={sortColumn === "status" ? sortDir : "none"}
+                aria-sort={ariaSort("status")}
               >
                 Status{sortIndicator("status")}
               </th>
               <th
                 className={styles.th}
                 onClick={() => handleSort("created_at")}
-                aria-sort={sortColumn === "created_at" ? sortDir : "none"}
+                aria-sort={ariaSort("created_at")}
               >
                 Created{sortIndicator("created_at")}
               </th>

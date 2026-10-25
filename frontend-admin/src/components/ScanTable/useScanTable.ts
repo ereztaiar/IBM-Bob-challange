@@ -28,9 +28,6 @@ export interface UseScanTableReturn {
   refresh: () => void;
 }
 
-/** Number of scans per page. */
-const PAGE_SIZE = 20;
-
 /**
  * Manages fetching, sorting, and filtering the scan table.
  * Calls the API whenever page or filter changes.

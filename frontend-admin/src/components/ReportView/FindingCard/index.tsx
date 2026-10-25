@@ -2,7 +2,7 @@
  * FindingCard — displays a single vulnerability finding with severity colouring.
  * Shared across the user and admin frontends (re-implemented independently).
  */
-import type { Finding } from "../../types/scan";
+import type { Finding } from "../../../types/scan";
 import styles from "./FindingCard.module.css";
 
 interface FindingCardProps {

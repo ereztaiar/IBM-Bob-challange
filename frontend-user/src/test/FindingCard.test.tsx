@@ -5,7 +5,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import FindingCard from "../components/ReportView/FindingCard";
-import type { Finding } from "../../types/scan";
+import type { Finding } from "../types/scan";
 
 const baseFinding: Finding = {
   category: "headers",
