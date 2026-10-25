@@ -9,7 +9,6 @@ from collections.abc import AsyncGenerator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -36,8 +35,8 @@ async def get_current_admin(
 ) -> Admin:
     """Validate a Bearer JWT and return the corresponding Admin row.
 
-    The token is decoded and the ``sub`` claim (admin username) is looked up
-    in the database to confirm the account still exists.
+    The token is decoded and the ``sub`` claim (admin username) must match the
+    configured ``ADMIN_USERNAME``.
 
     Args:
         token: JWT extracted from the ``Authorization: Bearer <token>`` header
@@ -65,9 +64,10 @@ async def get_current_admin(
     except JWTError:
         raise credentials_exception
 
-    result = await db.execute(select(Admin).where(Admin.username == username))
-    admin = result.scalars().first()
-    if admin is None:
+    # Login authenticates against the configured ADMIN_USERNAME/ADMIN_PASSWORD
+    # (the ``admins`` table is never populated), so validate the claim the same
+    # way instead of requiring a database row.
+    if username != settings.ADMIN_USERNAME:
         raise credentials_exception
 
-    return admin
+    return Admin(username=username)
