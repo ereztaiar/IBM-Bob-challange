@@ -26,7 +26,7 @@ frontend-user:5173     frontend-admin:5174
           └──────────────────┴──► db:5432  (PostgreSQL + pgvector)
 
 backend + rag also call:
-  └──► ollama:11434  (local LLM — llama3 / nomic-embed-text)
+  └──► Ollama on your VM, $OLLAMA_BASE_URL  (llama3 / nomic-embed-text)
 ```
 
 ### Vulnerability checks
@@ -53,9 +53,9 @@ backend + rag also call:
 | npm | 10+ | Bundled with Node 20 |
 | Python | 3.12+ | For local backend dev only |
 
-> **GPU / RAM:** The Ollama container downloads `llama3` (~4.7 GB) and
-> `nomic-embed-text` (~300 MB) on first boot. Allow at least 8 GB of free RAM
-> and expect the first startup to take several minutes.
+> **GPU / RAM:** Ollama runs on a separate VM (see [Ollama on a VM](#ollama-on-a-vm)),
+> not in Docker Compose. The VM needs `llama3` (~4.7 GB) and `nomic-embed-text`
+> (~300 MB) pulled, and at least 8 GB of free RAM.
 
 ---
 
@@ -86,20 +86,40 @@ Open `.env` and update at minimum:
 docker compose up --build
 ```
 
-Docker Compose starts six containers in dependency order:
+Docker Compose starts five containers in dependency order (Ollama runs on your VM):
 
 | Container | URL | Purpose |
 |---|---|---|
 | `db` | `localhost:5432` | PostgreSQL + pgvector |
-| `ollama` | `localhost:11434` | Local LLM (llama3 + nomic-embed-text) |
 | `rag` | `http://localhost:8001` | RAG micro-service (seeds KB on first boot) |
 | `backend` | `http://localhost:8000` | FastAPI REST API |
 | `frontend-user` | `http://localhost:5173` | User-facing scanner UI |
 | `frontend-admin` | `http://localhost:5174` | Admin dashboard |
 
-> **First boot note:** `ollama` pulls ~5 GB of model data before it becomes
-> healthy. The `rag`, `backend`, and frontend containers wait for their
-> upstream dependencies to pass health checks before starting.
+> The `rag`, `backend`, and frontend containers wait for their upstream
+> dependencies to pass health checks before starting. `rag` and `backend`
+> refuse to start if `OLLAMA_BASE_URL` is unset.
+
+### Ollama on a VM
+
+Ollama is not part of `docker-compose.yml`. On the VM:
+
+```bash
+# Listen on all interfaces (default is 127.0.0.1 only)
+sudo systemctl edit ollama   # add: [Service] Environment="OLLAMA_HOST=0.0.0.0:11434"
+sudo systemctl restart ollama
+ollama pull llama3
+ollama pull nomic-embed-text
+```
+
+Open TCP 11434 in the VM's firewall to the Docker host only, then set
+`OLLAMA_BASE_URL=http://<vm-ip>:11434` in `.env` and verify from the Docker host:
+
+```bash
+curl http://<vm-ip>:11434/api/tags
+```
+
+Ollama has no authentication — do not expose port 11434 to the internet.
 
 ### 3. Verify health
 
@@ -229,7 +249,7 @@ See [`.env.example`](.env.example) for the full list with descriptions. Key vari
 | `POSTGRES_PASSWORD` | — | **Required.** PostgreSQL password |
 | `POSTGRES_DB` | `vulnchecker` | Database name |
 | `DATABASE_URL` | — | Full async DSN for SQLAlchemy |
-| `OLLAMA_BASE_URL` | `http://ollama:11434` | Ollama service URL |
+| `OLLAMA_BASE_URL` | — | **Required.** URL of the Ollama server on your VM, e.g. `http://192.168.1.50:11434` |
 | `OLLAMA_MODEL` | `llama3` | Chat model name |
 | `OLLAMA_EMBED_MODEL` | `nomic-embed-text` | Embedding model name |
 | `ADMIN_USERNAME` | — | **Required.** Admin login username |
@@ -247,7 +267,7 @@ See [`.env.example`](.env.example) for the full list with descriptions. Key vari
 
 ```
 /
-├── docker-compose.yml          # All six services with health checks and ordering
+├── docker-compose.yml          # All five services with health checks and ordering
 ├── .env.example                # Environment variable template
 ├── package.json                # Root npm workspace config
 ├── db/
