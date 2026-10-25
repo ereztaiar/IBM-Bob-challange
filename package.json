@@ -1,0 +1,13 @@
+{
+  "name": "website-vulnerability-checker",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --recursive run dev",
+    "lint": "pnpm --recursive run lint",
+    "test": "pnpm --recursive run test"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}
