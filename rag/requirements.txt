@@ -8,3 +8,8 @@ langchain
 langchain-community
 psycopg2-binary
 pgvector
+pytest
+pytest-asyncio
+anyio[trio]
+aiosqlite
+httpx

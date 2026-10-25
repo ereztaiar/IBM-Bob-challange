@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import DateTime, String, Text, text
+from sqlalchemy import DateTime, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -33,6 +34,6 @@ class ScanEmbedding(Base):
     embedding: Mapped[object] = mapped_column(Vector(1536), nullable=True)
     created_at: Mapped[object] = mapped_column(
         DateTime(timezone=True),
-        server_default=text("now()"),
+        default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
