@@ -48,6 +48,11 @@ class Scan(Base):
     )
     report_json: Mapped[object] = mapped_column(JSON, nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    deleted_at: Mapped[object] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+    )
 
     findings: Mapped[list[Finding]] = relationship(
         "Finding",

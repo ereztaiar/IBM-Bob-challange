@@ -145,25 +145,37 @@ async def test_protected_route_with_valid_token(
 ) -> None:
     """GET /admin/scans with a valid JWT should return 200.
 
-    The ``get_current_admin`` dependency queries the DB for the username found
-    in the token.  Because we are running against an in-memory SQLite DB with
-    no seeded data, we override ``get_current_admin`` to bypass the DB lookup
-    and return a synthetic Admin stub for this test only.
+    Both ``get_current_admin`` and ``get_db`` are overridden so the test runs
+    entirely against an in-memory SQLite DB with no real Postgres connection.
     """
-    from unittest.mock import MagicMock
+    from collections.abc import AsyncGenerator
 
-    from app.dependencies import get_current_admin
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+    from app.db.base import Base
     from app.db.models.admin import Admin
+    from app.db.models import scan as _scan_models  # noqa: F401
+    from app.dependencies import get_current_admin, get_db
 
-    # Build a stub admin — no DB round-trip
-    stub_admin = MagicMock(spec=Admin)
+    # Build an in-memory SQLite engine for this test
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+
+    stub_admin = Admin()
     stub_admin.username = TEST_USERNAME
 
-    async def _stub_get_admin():
+    async def _stub_db() -> AsyncGenerator[AsyncSession, None]:
+        async with factory() as session:
+            yield session
+
+    async def _stub_admin() -> Admin:
         return stub_admin
 
     application = create_app()
-    application.dependency_overrides[get_current_admin] = _stub_get_admin
+    application.dependency_overrides[get_db] = _stub_db
+    application.dependency_overrides[get_current_admin] = _stub_admin
 
     transport = ASGITransport(app=application)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
@@ -172,7 +184,9 @@ async def test_protected_route_with_valid_token(
             headers={"Authorization": f"Bearer {valid_token}"},
         )
 
+    await engine.dispose()
+
     assert response.status_code == 200
     body = response.json()
-    assert body["scans"] == []
-    assert "message" in body
+    assert body["total"] == 0
+    assert body["items"] == []
