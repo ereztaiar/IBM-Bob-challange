@@ -3,18 +3,15 @@
 # ── Build stage ───────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
-# Enable corepack so pnpm is available inside the build container.
-RUN corepack enable
-
 WORKDIR /app
 
 # Install dependencies first (layer-cache friendly).
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json* ./
+RUN npm ci
 
 # Copy source and build.
 COPY . .
-RUN pnpm build
+RUN npm run build
 
 # ── Runtime stage — nginx ─────────────────────────────────────────────────────
 FROM nginx:alpine
@@ -26,5 +23,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 5173
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:5173/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

@@ -17,7 +17,13 @@ WORKDIR /app
 COPY --from=builder /install /usr/local
 
 COPY app/ ./app/
+COPY seeds/ ./seeds/
 
 EXPOSE 8001
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" || exit 1
+
+# Start the API server, then run the seed script in the background once the
+# service is ready. The seed is idempotent — safe to re-run on every restart.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8001 & sleep 10 && python -m seeds.seed; wait"]
