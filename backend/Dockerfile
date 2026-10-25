@@ -19,6 +19,7 @@ WORKDIR /app
 COPY --from=builder /install /usr/local
 
 # Copy application source.
+COPY alembic.ini ./
 COPY app/ ./app/
 
 EXPOSE 8000
@@ -26,4 +27,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Apply pending migrations, then start the API.
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000"]

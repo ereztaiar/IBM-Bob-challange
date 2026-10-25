@@ -34,6 +34,10 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+# The backend shares this database and uses the default ``alembic_version``
+# table, so the RAG service tracks its revisions in its own table.
+VERSION_TABLE = "alembic_version_rag"
+
 
 def _get_sync_url() -> str:
     """Return a synchronous psycopg2 DATABASE_URL for Alembic.
@@ -58,6 +62,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        version_table=VERSION_TABLE,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -73,7 +78,11 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
     )
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table=VERSION_TABLE,
+        )
         with context.begin_transaction():
             context.run_migrations()
 
