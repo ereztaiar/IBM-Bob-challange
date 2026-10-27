@@ -11,8 +11,12 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
+from urllib.parse import urlparse
+
+import httpx
 
 from app.agents.graph import build_scan_graph
+from app.config import settings
 from app.db.session import AsyncSessionLocal
 from app.services import scan_service
 
@@ -66,3 +70,18 @@ async def run_scan(scan_id: str, url: str) -> None:
         )
 
     logger.info("Scan %s completed successfully", scan_id)
+
+    # Persist scan summary to RAG history (fire-and-forget — failure is non-fatal)
+    summary = report.get("summary", "")
+    if summary:
+        domain = urlparse(url).hostname or url
+        try:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
+                resp = await client.post(
+                    f"{settings.RAG_SERVICE_URL}/rag/history/ingest",
+                    json={"scan_id": scan_id, "domain": domain, "summary": summary},
+                )
+                resp.raise_for_status()
+            logger.info("Scan %s history ingested for domain %s", scan_id, domain)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Scan %s history ingest failed (non-fatal): %s", scan_id, exc)
