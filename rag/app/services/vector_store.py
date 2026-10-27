@@ -98,6 +98,28 @@ async def document_exists(category: str, title: str) -> bool:
         return result.scalars().first() is not None
 
 
+async def get_document_by_category_title(
+    category: str, title: str
+) -> VulnerabilityDoc | None:
+    """Fetch an existing knowledge-base document by category and title.
+
+    Args:
+        category: Vulnerability category to look up.
+        title: Document title to look up.
+
+    Returns:
+        The matching ``VulnerabilityDoc`` row, or ``None`` if not found.
+    """
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(VulnerabilityDoc)
+            .where(VulnerabilityDoc.category == category)
+            .where(VulnerabilityDoc.title == title)
+            .limit(1)
+        )
+        return result.scalars().first()
+
+
 # ---------------------------------------------------------------- scan history
 
 
