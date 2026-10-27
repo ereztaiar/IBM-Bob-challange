@@ -1,16 +1,18 @@
 /**
- * App — root component for the user-facing frontend.
- *
- * Renders a placeholder heading while the full scan-submission UI is
- * implemented in Sub-Task 7.
+ * App — root component. Mounts NavBar and the single HomePage.
  */
-function App(): JSX.Element {
+
+import NavBar from "./components/NavBar";
+import HomePage from "./pages/HomePage";
+
+/**
+ * Renders the top-level application shell.
+ */
+export default function App(): JSX.Element {
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
-      <h1>Website Vulnerability Checker</h1>
-      <p>Enter a URL to scan for common vulnerabilities.</p>
-    </main>
+    <>
+      <NavBar />
+      <HomePage />
+    </>
   );
 }
-
-export default App;

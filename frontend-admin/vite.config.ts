@@ -3,13 +3,18 @@ import react from "@vitejs/plugin-react";
 
 /**
  * Vite configuration for the admin frontend.
- * The dev server runs on port 5174 to avoid clashing with frontend-user.
- * The `VITE_ADMIN_API_URL` env var is forwarded to the browser at build time.
+ * - Dev server on port 5174 (avoids clash with user frontend on 5173)
+ * - Test environment: jsdom so React components can render in Vitest
  */
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5174,
     strictPort: true,
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["src/test/setup.ts"],
   },
 });

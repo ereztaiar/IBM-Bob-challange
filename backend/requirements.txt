@@ -11,3 +11,8 @@ langchain
 langchain-community
 langgraph
 psycopg2-binary
+langchain-ollama
+pytest
+pytest-asyncio
+anyio[trio]
+aiosqlite
