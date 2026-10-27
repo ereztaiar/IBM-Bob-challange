@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 
 from app.schemas import (
     KnowledgeIngestRequest,
@@ -21,7 +21,9 @@ router = APIRouter(prefix="/rag/knowledge", tags=["knowledge"])
     response_model=KnowledgeIngestResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def ingest_knowledge(request: KnowledgeIngestRequest) -> KnowledgeIngestResponse:
+async def ingest_knowledge(
+    request: KnowledgeIngestRequest, response: Response
+) -> KnowledgeIngestResponse:
     """Embed and store a vulnerability knowledge document.
 
     If a document with the same ``category`` and ``title`` already exists the
@@ -30,10 +32,31 @@ async def ingest_knowledge(request: KnowledgeIngestRequest) -> KnowledgeIngestRe
 
     Args:
         request: Ingest payload containing ``category``, ``title``, and ``content``.
+        response: FastAPI response object used to override the status code for
+            duplicates.
 
     Returns:
-        The id, category, and title of the stored document.
+        The id, category, and title of the stored (or pre-existing) document.
     """
+    try:
+        existing = await vector_store.get_document_by_category_title(
+            category=request.category,
+            title=request.title,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Duplicate check failed: {exc}",
+        ) from exc
+
+    if existing is not None:
+        response.status_code = status.HTTP_200_OK
+        return KnowledgeIngestResponse(
+            id=str(existing.id),
+            category=existing.category,
+            title=existing.title,
+        )
+
     try:
         doc = await vector_store.ingest_document(
             category=request.category,
