@@ -18,8 +18,9 @@ class ScanEmbedding(Base):
     ``scan_id`` references the backend's ``scans.id`` (no cross-DB FK —
     stored as a plain UUID for correlation only).  ``domain`` is the
     extracted hostname (e.g. ``example.com``) and is used to retrieve
-    past-scan history for the same site.  ``embedding`` is a 1536-dimensional
-    pgvector column populated after each scan completes.
+    past-scan history for the same site.  ``embedding`` is a 768-dimensional
+    pgvector column populated after each scan completes (matches
+    ``nomic-embed-text`` output dimensions).
     """
 
     __tablename__ = "scan_embeddings"
@@ -31,7 +32,7 @@ class ScanEmbedding(Base):
     scan_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     domain: Mapped[str] = mapped_column(String, nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
-    embedding: Mapped[object] = mapped_column(Vector(1536), nullable=True)
+    embedding: Mapped[object] = mapped_column(Vector(768), nullable=True)
     created_at: Mapped[object] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

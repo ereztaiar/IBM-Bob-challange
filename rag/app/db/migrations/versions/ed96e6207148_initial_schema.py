@@ -28,7 +28,7 @@ def upgrade() -> None:
         sa.Column("category", sa.String(), nullable=False),
         sa.Column("title", sa.String(), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
-        sa.Column("embedding", Vector(1536), nullable=True),
+        sa.Column("embedding", Vector(768), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -44,7 +44,7 @@ def upgrade() -> None:
         sa.Column("scan_id", sa.UUID(), nullable=False),
         sa.Column("domain", sa.String(), nullable=False),
         sa.Column("summary", sa.Text(), nullable=False),
-        sa.Column("embedding", Vector(1536), nullable=True),
+        sa.Column("embedding", Vector(768), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
