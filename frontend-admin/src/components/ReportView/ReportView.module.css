@@ -1,0 +1,59 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.summary {
+  background: #f7f8fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.summaryTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #1f2328;
+}
+
+.summaryText {
+  font-size: 0.9375rem;
+  color: #1f2328;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.findingsTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1f2328;
+}
+
+.noFindings {
+  color: #57606a;
+  font-size: 0.9375rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item { margin: 0; }
+
+.score {
+  margin: 0.75rem 0 0;
+  font-weight: 600;
+}
+
+.recommendations {
+  margin: 0 0 1.5rem;
+  padding-left: 1.25rem;
+}

@@ -1,3 +1,5 @@
+# Ollama is NOT run by this compose file — it runs on a separate VM.
+# Point OLLAMA_BASE_URL in .env at it (see README → "Ollama on a VM").
 services:
 
   # ── PostgreSQL + pgvector ───────────────────────────────────────────────────
@@ -19,26 +21,26 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Ollama local LLM ────────────────────────────────────────────────────────
-  ollama:
-    image: ollama/ollama:latest
+  # ── RAG micro-service (FastAPI) ─────────────────────────────────────────────
+  rag:
+    build:
+      context: ./rag
+      dockerfile: Dockerfile
     restart: unless-stopped
-    volumes:
-      - ollama_data:/root/.ollama
+    env_file: .env
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:?Set OLLAMA_BASE_URL in .env to your Ollama VM, e.g. http://192.168.1.50:11434}
     ports:
-      - "11434:11434"
-    entrypoint: >
-      sh -c "ollama serve &
-             sleep 5 &&
-             ollama pull llama3 &&
-             ollama pull nomic-embed-text &&
-             wait"
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\" || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # ── Backend API (FastAPI) ───────────────────────────────────────────────────
   backend:
@@ -47,28 +49,21 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file: .env
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:?Set OLLAMA_BASE_URL in .env to your Ollama VM, e.g. http://192.168.1.50:11434}
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-      ollama:
+      rag:
         condition: service_healthy
-
-  # ── RAG micro-service (FastAPI) ─────────────────────────────────────────────
-  rag:
-    build:
-      context: ./rag
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file: .env
-    ports:
-      - "8001:8001"
-    depends_on:
-      db:
-        condition: service_healthy
-      ollama:
-        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # ── User-facing frontend (React + Vite → nginx) ─────────────────────────────
   frontend-user:
@@ -78,6 +73,15 @@ services:
     restart: unless-stopped
     ports:
       - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5173/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   # ── Admin frontend (React + Vite → nginx) ───────────────────────────────────
   frontend-admin:
@@ -87,7 +91,15 @@ services:
     restart: unless-stopped
     ports:
       - "5174:5174"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5174/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   pgdata:
-  ollama_data:

@@ -1,0 +1,43 @@
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.back {
+  font-size: 0.875rem;
+  color: #3b82d4;
+  text-decoration: none;
+}
+
+.back:hover { text-decoration: underline; }
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2328;
+  margin: 0;
+}
+
+.meta {
+  font-size: 0.9375rem;
+  color: #57606a;
+  margin: 0;
+}
+
+.loading, .pending {
+  color: #57606a;
+  font-size: 0.9375rem;
+}
+
+.error {
+  color: #c0392b;
+  background: #fdf0ef;
+  border: 1px solid #f5c6c2;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
