@@ -2,3 +2,5 @@ packages:
   - "frontend-user"
   - "frontend-admin"
   - "ui-shared"
+allowBuilds:
+  esbuild: true
