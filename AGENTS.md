@@ -1,5 +1,19 @@
 # AGENTS.md — Website Vulnerability Checker
 
+## Bob Memory
+
+Project-specific memory is stored in `.bob/memory/` and is read by Bob at the
+start of each session to restore context without re-exploring the codebase.
+
+| File | Contents |
+|---|---|
+| `architecture.md` | Service topology, DB schema, LangGraph pipeline overview, auth, Docker startup order |
+| `decisions.md` | Recorded design and technology decisions with commit references |
+| `known-issues.md` | Fixed bugs and open issues with root-cause notes |
+| `scan-flow.md` | Complete step-by-step trace of a scan: user frontend → agents → RAG → DB → admin report |
+
+---
+
 ## Project
 
 A monorepo web application: users submit a URL and receive a structured
