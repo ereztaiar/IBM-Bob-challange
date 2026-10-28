@@ -1,0 +1,29 @@
+/*
+ * base.css — global reset and base typography for both frontends.
+ *
+ * Import this file (after variables.css) in each app's index.css.
+ * Component-level styles live in CSS Modules; never put component
+ * rules here.
+ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+a {
+  color: var(--color-accent);
+}

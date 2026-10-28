@@ -1,0 +1,135 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Summary card ────────────────────────────────────────────────── */
+.summary {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summaryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.summaryTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  color: var(--color-text);
+}
+
+.url {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin: 0;
+  word-break: break-all;
+}
+
+.summaryText {
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Risk score ──────────────────────────────────────────────────── */
+.scoreBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.scoreLabel {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score[data-level="low"]    { color: var(--color-low); }
+.score[data-level="medium"] { color: var(--color-medium-border); }
+.score[data-level="high"]   { color: var(--color-critical); }
+
+/* ── Generic section ─────────────────────────────────────────────── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+/* ── Recommendations ─────────────────────────────────────────────── */
+.recommendations {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.recommendations li {
+  font-size: 0.875rem;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* ── Findings list ───────────────────────────────────────────────── */
+.findingsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.noFindings {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+/* ── Reset button ────────────────────────────────────────────────── */
+.resetButton {
+  align-self: flex-start;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1.1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.resetButton:hover {
+  background: #dbeafe;
+}
