@@ -3,6 +3,8 @@
  *
  * Handles the error / failed state locally, then delegates to the shared
  * ReportView component for the actual report layout.
+ *
+ * Navigation (reset / new scan) is handled by the ScanActionsBar in HomePage.
  */
 
 import type { ScanResponse } from "../../types/scan";
@@ -13,12 +15,12 @@ import styles from "./ReportView.module.css";
 interface ReportViewProps {
   /** The completed or failed scan. */
   scan: ScanResponse;
-  /** Called when the user clicks "Scan another URL". */
+  /** Called when the user clicks "Try another URL" on the error state. */
   onReset: () => void;
 }
 
 /**
- * Renders the full report or an error message.
+ * Renders the full report or an error message for a failed scan.
  *
  * @param props - Component props.
  */
@@ -40,5 +42,5 @@ export default function ReportView({ scan, onReset }: ReportViewProps): JSX.Elem
 
   if (!report) return <></>;
 
-  return <SharedReportView report={report} onReset={onReset} />;
+  return <SharedReportView report={report} />;
 }

@@ -68,8 +68,8 @@ services:
   # ── User-facing frontend (React + Vite → nginx) ─────────────────────────────
   frontend-user:
     build:
-      context: ./frontend-user
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend-user/Dockerfile
     restart: unless-stopped
     ports:
       - "5173:5173"
@@ -86,8 +86,8 @@ services:
   # ── Admin frontend (React + Vite → nginx) ───────────────────────────────────
   frontend-admin:
     build:
-      context: ./frontend-admin
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend-admin/Dockerfile
     restart: unless-stopped
     ports:
       - "5174:5174"

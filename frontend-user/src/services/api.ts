@@ -16,11 +16,15 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
  * @returns The initial ScanResponse with status "pending".
  * @throws Error if the request fails or the server returns a non-2xx status.
  */
-export async function submitScan(url: string): Promise<ScanResponse> {
+export async function submitScan(url: string, prompt: string = ""): Promise<ScanResponse> {
+  const body: Record<string, string> = { url };
+  if (prompt) {
+    body.user_prompt = prompt;
+  }
   const response = await fetch(`${BASE_URL}/scans`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

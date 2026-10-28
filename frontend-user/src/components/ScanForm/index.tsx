@@ -7,24 +7,38 @@
 import { useState, type FormEvent } from "react";
 import styles from "./ScanForm.module.css";
 
+/** Maximum length of the optional user prompt. */
+const MAX_PROMPT_LENGTH = 300;
+
+/** Props for the ScanForm component. */
 interface ScanFormProps {
-  /** Called with the submitted URL when the form is valid. */
-  onSubmit: (url: string) => void;
+  /** Called with the submitted URL and optional focus prompt when the form is valid. */
+  onSubmit: (url: string, prompt: string) => void;
   /** Whether a scan is currently in progress. */
   isScanning: boolean;
+  /**
+   * When true the focus-area textarea is disabled, and an inline notice is shown
+   * to inform the user that the AI service is unavailable.
+   */
+  promptDisabled?: boolean;
 }
 
 /**
- * Renders the URL input and submit button.
+ * Renders the URL input, submit button, and optional collapsible focus-area textarea.
  *
  * @param props - Component props.
  */
-export default function ScanForm({ onSubmit, isScanning }: ScanFormProps): JSX.Element {
+export default function ScanForm({
+  onSubmit,
+  isScanning,
+  promptDisabled = false,
+}: ScanFormProps): JSX.Element {
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState("");
 
   /**
-   * Validate and submit the URL.
+   * Validate and submit the URL together with the optional focus prompt.
    *
    * @param e - Form submit event.
    */
@@ -49,7 +63,7 @@ export default function ScanForm({ onSubmit, isScanning }: ScanFormProps): JSX.E
       return;
     }
 
-    onSubmit(trimmed);
+    onSubmit(trimmed, prompt.trim());
   }
 
   return (
@@ -81,6 +95,33 @@ export default function ScanForm({ onSubmit, isScanning }: ScanFormProps): JSX.E
           {error}
         </p>
       )}
+
+      <details className={styles.focusDetails}>
+        <summary className={styles.focusSummary}>Focus area (optional)</summary>
+        <div className={styles.focusBody}>
+          {promptDisabled ? (
+            <p className={styles.offlineNotice} role="status">
+              Focus area unavailable — AI service is offline.
+            </p>
+          ) : (
+            <>
+              <textarea
+                id="scan-prompt"
+                className={styles.focusTextarea}
+                placeholder="e.g. check the payment page for injection issues"
+                maxLength={MAX_PROMPT_LENGTH}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                disabled={isScanning}
+                rows={3}
+              />
+              <span className={styles.charCounter} aria-live="polite">
+                {MAX_PROMPT_LENGTH - prompt.length} / {MAX_PROMPT_LENGTH}
+              </span>
+            </>
+          )}
+        </div>
+      </details>
     </form>
   );
 }

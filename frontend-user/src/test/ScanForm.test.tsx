@@ -10,7 +10,7 @@ import ScanForm from "../components/ScanForm";
 describe("ScanForm", () => {
   it("renders the URL input and submit button", () => {
     render(<ScanForm onSubmit={vi.fn()} isScanning={false} />);
-    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getByLabelText(/enter a website url/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /scan/i })).toBeInTheDocument();
   });
 
@@ -22,22 +22,32 @@ describe("ScanForm", () => {
 
   it("shows an error for an invalid URL", async () => {
     render(<ScanForm onSubmit={vi.fn()} isScanning={false} />);
-    await userEvent.type(screen.getByRole("textbox"), "not-a-url");
+    await userEvent.type(screen.getByLabelText(/enter a website url/i), "not-a-url");
     await userEvent.click(screen.getByRole("button", { name: /scan/i }));
     expect(screen.getByRole("alert")).toHaveTextContent(/valid URL/i);
   });
 
-  it("calls onSubmit with the URL when a valid URL is entered", async () => {
+  it("calls onSubmit with the URL and empty prompt when a valid URL is entered", async () => {
     const onSubmit = vi.fn();
     render(<ScanForm onSubmit={onSubmit} isScanning={false} />);
-    await userEvent.type(screen.getByRole("textbox"), "https://example.com");
+    await userEvent.type(screen.getByLabelText(/enter a website url/i), "https://example.com");
     await userEvent.click(screen.getByRole("button", { name: /scan/i }));
-    expect(onSubmit).toHaveBeenCalledWith("https://example.com");
+    expect(onSubmit).toHaveBeenCalledWith("https://example.com", "");
   });
 
-  it("disables the input and button while scanning", () => {
+  it("disables the URL input and submit button while scanning", () => {
     render(<ScanForm onSubmit={vi.fn()} isScanning={true} />);
-    expect(screen.getByRole("textbox")).toBeDisabled();
-    expect(screen.getByRole("button")).toBeDisabled();
+    expect(screen.getByLabelText(/enter a website url/i)).toBeDisabled();
+    expect(screen.getByRole("button", { name: /scanning/i })).toBeDisabled();
+  });
+
+  it("renders the focus area collapsible section", () => {
+    render(<ScanForm onSubmit={vi.fn()} isScanning={false} />);
+    expect(screen.getByText(/focus area/i)).toBeInTheDocument();
+  });
+
+  it("shows offline notice when promptDisabled is true", () => {
+    render(<ScanForm onSubmit={vi.fn()} isScanning={false} promptDisabled={true} />);
+    expect(screen.getByRole("status")).toHaveTextContent(/AI service is offline/i);
   });
 });

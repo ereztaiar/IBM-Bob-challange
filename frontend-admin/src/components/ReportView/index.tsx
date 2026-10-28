@@ -1,7 +1,7 @@
 /**
  * ReportView — re-exports the shared ReportView for the admin frontend.
  *
- * The admin frontend passes a bare `Report` object (no onReset needed).
+ * The admin frontend passes a bare `Report` object.
  */
 
 export { ReportView as default } from "ui-shared/components/ReportView";

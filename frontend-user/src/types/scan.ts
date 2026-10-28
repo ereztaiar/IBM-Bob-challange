@@ -19,4 +19,5 @@ export interface ScanResponse {
   completed_at: string | null;
   error_message: string | null;
   report_json: import("ui-shared/components/FindingCard/types").Report | null;
+  prompt_service_down: boolean;
 }

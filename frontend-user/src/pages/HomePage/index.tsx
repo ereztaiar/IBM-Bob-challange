@@ -2,16 +2,18 @@
  * HomePage — the single-page scan submission and report view.
  *
  * Layout:
- *   1. MetaTagGate (blocks the form until acknowledged)
- *   2. ScanForm    (visible after acknowledgement; hidden while scanning)
- *   3. ScanSpinner (shown while pending/running)
- *   4. ReportView  (shown on completed or failed)
+ *   1. MetaTagGate    (blocks the form until acknowledged)
+ *   2. ScanActionsBar (always visible once a scan has been submitted)
+ *   3. ScanForm       (visible after acknowledgement; hidden while scanning)
+ *   4. ScanSpinner    (shown while pending/running)
+ *   5. ReportView     (shown on completed or failed)
  */
 
 import { useState } from "react";
 import MetaTagGate from "../../components/MetaTagGate";
 import { useMetaTagGate } from "../../components/MetaTagGate/useMetaTagGate";
 import ReportView from "../../components/ReportView";
+import ScanActionsBar from "../../components/ScanActionsBar";
 import ScanForm from "../../components/ScanForm";
 import ScanSpinner from "../../components/ScanSpinner";
 import { useScanPoller } from "../../hooks/useScanPoller";
@@ -25,6 +27,7 @@ export default function HomePage(): JSX.Element {
   const gate = useMetaTagGate();
   const [scanId, setScanId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [scannedUrl, setScannedUrl] = useState<string | null>(null);
 
   const { scan, isPolling } = useScanPoller(scanId);
 
@@ -36,11 +39,12 @@ export default function HomePage(): JSX.Element {
    *
    * @param url - The URL to scan.
    */
-  async function handleSubmit(url: string): Promise<void> {
+  async function handleSubmit(url: string, prompt: string = ""): Promise<void> {
     setSubmitError(null);
     try {
-      const result = await submitScan(url);
+      const result = await submitScan(url, prompt);
       setScanId(result.scan_id);
+      setScannedUrl(url);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Submission failed.");
     }
@@ -50,6 +54,19 @@ export default function HomePage(): JSX.Element {
   function handleReset(): void {
     setScanId(null);
     setSubmitError(null);
+    setScannedUrl(null);
+  }
+
+  /**
+   * Reset state and immediately re-submit with a (possibly different) URL.
+   *
+   * @param url - The URL to scan next.
+   */
+  function handleRescan(url: string): void {
+    setScanId(null);
+    setSubmitError(null);
+    setScannedUrl(null);
+    void handleSubmit(url, "");
   }
 
   return (
@@ -66,9 +83,22 @@ export default function HomePage(): JSX.Element {
 
         <MetaTagGate gate={gate} />
 
+        {gate.acknowledged && scannedUrl !== null && (
+          <ScanActionsBar
+            currentUrl={scannedUrl}
+            onScanAgain={() => handleRescan(scannedUrl)}
+            onScanNew={handleRescan}
+            isScanning={isScanning}
+          />
+        )}
+
         {gate.acknowledged && !isScanning && !isDone && (
           <>
-            <ScanForm onSubmit={handleSubmit} isScanning={false} />
+            <ScanForm
+              onSubmit={handleSubmit}
+              isScanning={false}
+              promptDisabled={scan?.prompt_service_down === true}
+            />
             {submitError && (
               <p className={styles.submitError} role="alert">
                 {submitError}
