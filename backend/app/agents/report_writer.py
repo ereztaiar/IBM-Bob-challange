@@ -99,6 +99,33 @@ def _extract_json(raw: str) -> dict:
     raise ValueError(f"No JSON found in LLM response: {raw[:200]}")
 
 
+# Severity weights used by _compute_risk_score.  Module-level so they are
+# easy to tune without hunting inside function bodies.
+_SEVERITY_WEIGHTS: dict[str, int] = {
+    "critical": 30,
+    "high": 15,
+    "medium": 7,
+    "low": 3,
+    "info": 0,
+}
+
+
+def _compute_risk_score(findings: list[dict]) -> int:
+    """Compute a deterministic risk score (0–100) from a list of findings.
+
+    Each finding contributes its severity weight.  The result is clamped to
+    100 so callers never need to guard against out-of-range values.
+
+    Args:
+        findings: List of Finding dicts, each expected to have a ``severity`` key.
+
+    Returns:
+        Integer risk score in the range [0, 100].
+    """
+    total = sum(_SEVERITY_WEIGHTS.get(f.get("severity", "info"), 0) for f in findings)
+    return min(100, total)
+
+
 def _fallback_report(url: str, findings: list[dict]) -> dict:
     """Build a minimal report from raw findings without LLM involvement.
 
@@ -115,7 +142,6 @@ def _fallback_report(url: str, findings: list[dict]) -> dict:
     sorted_findings = sorted(findings, key=lambda f: severity_order.get(f.get("severity", "info"), 4))
     critical_count = sum(1 for f in findings if f.get("severity") == "critical")
     high_count = sum(1 for f in findings if f.get("severity") == "high")
-    risk_score = min(100, critical_count * 30 + high_count * 15)
 
     return {
         "url": url,
@@ -123,7 +149,7 @@ def _fallback_report(url: str, findings: list[dict]) -> dict:
             f"Scan completed. Found {len(findings)} issue(s) including "
             f"{critical_count} critical and {high_count} high severity."
         ),
-        "risk_score": risk_score,
+        "risk_score": _compute_risk_score(findings),
         "findings": sorted_findings,
         "recommendations": [
             f["remediation"]
@@ -135,6 +161,10 @@ def _fallback_report(url: str, findings: list[dict]) -> dict:
 
 async def report_writer_node(state: AgentState) -> dict:
     """Call the LLM to generate a narrative report from findings + RAG context.
+
+    The risk score is always computed deterministically from the findings via
+    ``_compute_risk_score`` and injected into the final report — the LLM is
+    never trusted to produce a numerically consistent score on its own.
 
     Falls back to a structured-but-narrative-free report if the LLM is
     unavailable or returns unparseable output.
@@ -149,6 +179,9 @@ async def report_writer_node(state: AgentState) -> dict:
     findings = state.get("findings", [])
     rag_context = state.get("rag_context", [])
 
+    # Compute once — injected into both the LLM and fallback paths.
+    risk_score = _compute_risk_score(findings)
+
     if not findings:
         return {"report": _fallback_report(url, [])}
 
@@ -159,9 +192,11 @@ async def report_writer_node(state: AgentState) -> dict:
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         raw_text = response.content if hasattr(response, "content") else str(response)
         report = _extract_json(raw_text)
-        logger.info("[report_writer] LLM report generated successfully")
+        # Override whatever score the LLM produced with the deterministic one.
+        report["risk_score"] = risk_score
+        logger.info("[report_writer] LLM report generated successfully (risk_score=%d)", risk_score)
     except Exception as exc:  # noqa: BLE001
-        logger.warning("[report_writer] LLM call failed (%s) — using fallback report", exc)
+        logger.error("[report_writer] LLM call failed — using fallback report", exc_info=exc)
         report = _fallback_report(url, findings)
 
     return {"report": report}
