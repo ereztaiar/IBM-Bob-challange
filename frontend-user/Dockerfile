@@ -1,26 +1,32 @@
-# syntax=docker/dockerfile:1
-
 # ── Build stage ───────────────────────────────────────────────────────────────
+# Context is the monorepo root so ui-shared is available.
 FROM node:20-alpine AS builder
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Install dependencies first (layer-cache friendly).
-COPY package.json package-lock.json* ./
-RUN npm ci
+# Copy workspace manifests and lockfile for layer-cache-friendly install.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY ui-shared/package.json ./ui-shared/
+COPY frontend-user/package.json ./frontend-user/
 
-# Copy source and build.
-COPY . .
-RUN npm run build
+RUN pnpm install --frozen-lockfile
+
+# Copy all source needed for the build.
+COPY ui-shared/ ./ui-shared/
+COPY frontend-user/ ./frontend-user/
+
+WORKDIR /app/frontend-user
+RUN pnpm run build:docker
 
 # ── Runtime stage — nginx ─────────────────────────────────────────────────────
 FROM nginx:alpine
 
-# Remove the default nginx config and replace with our own.
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend-user/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the built assets from the builder stage.
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/frontend-user/dist /usr/share/nginx/html
 
 EXPOSE 5173
 
