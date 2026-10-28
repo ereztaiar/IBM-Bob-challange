@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 
 /**
  * Vite configuration for the user-facing frontend.
@@ -7,6 +8,11 @@ import react from "@vitejs/plugin-react";
  */
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "ui-shared": path.resolve(__dirname, "../ui-shared/src"),
+    },
+  },
   server: {
     port: 5173,
     strictPort: true,

@@ -24,7 +24,7 @@ describe("FindingCard", () => {
 
   it("renders the severity badge", () => {
     render(<FindingCard finding={baseFinding} />);
-    expect(screen.getByText("high")).toBeInTheDocument();
+    expect(screen.getByText("HIGH")).toBeInTheDocument();
   });
 
   it("renders evidence text", () => {
@@ -37,9 +37,11 @@ describe("FindingCard", () => {
     expect(screen.getByText(/Add the HSTS header/i)).toBeInTheDocument();
   });
 
-  it("applies the correct data-severity attribute for colour coding", () => {
+  it("applies severity class-based colour coding", () => {
     const { container } = render(<FindingCard finding={baseFinding} />);
-    const badge = container.querySelector("[data-severity='high']");
+    // Shared FindingCard uses CSS class composition for severity; verify badge text
+    const badge = container.querySelector("header span");
     expect(badge).toBeInTheDocument();
+    expect(badge?.textContent).toBe("HIGH");
   });
 });

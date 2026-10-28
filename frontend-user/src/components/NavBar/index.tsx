@@ -1,17 +1,17 @@
 /**
- * NavBar — top navigation bar displayed on every page.
+ * NavBar — thin wrapper around the shared NavBar for the user frontend.
  */
 
-import styles from "./NavBar.module.css";
+import { NavBar as SharedNavBar } from "ui-shared/components/NavBar";
 
 /**
- * Renders the application top navigation bar.
+ * Renders the user-facing navigation bar.
  */
 export default function NavBar(): JSX.Element {
   return (
-    <nav className={styles.nav} aria-label="Main navigation">
-      <span className={styles.brand}>VulnChecker</span>
-      <span className={styles.tagline}>Website Vulnerability Scanner</span>
-    </nav>
+    <SharedNavBar
+      brand="VulnChecker"
+      tagline="Website Vulnerability Scanner"
+    />
   );
 }

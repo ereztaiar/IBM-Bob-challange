@@ -1,0 +1,74 @@
+/*
+ * Design tokens — import this once in each app's index.css.
+ *
+ * All component-level CSS Modules reference these variables so both
+ * frontends stay pixel-identical without duplication.
+ */
+
+:root {
+  /* ── Typography ───────────────────────────────────────────────── */
+  --font-base: -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-size-base: 15px;
+  --line-height-base: 1.6;
+
+  /* ── Palette ──────────────────────────────────────────────────── */
+  --color-bg:       #ffffff;
+  --color-surface:  #f7f8fa;
+  --color-border:   #e5e7eb;
+  --color-border-soft: #d0d7de;
+
+  --color-text:     #1f2328;
+  --color-muted:    #57606a;
+  --color-subtle:   #8b949e;
+
+  --color-accent:   #3b82d4;
+  --color-accent-dark: #2d6bbf;
+  --color-accent-bg:   #f0f6ff;
+  --color-accent-border: #bfdbfe;
+
+  /* ── Severity colours ────────────────────────────────────────── */
+  --color-critical:       #c0392b;
+  --color-critical-bg:    #fee2e2;
+  --color-critical-text:  #991b1b;
+  --color-critical-border:#c0392b;
+
+  --color-high:           #e67e22;
+  --color-high-bg:        #ffedd5;
+  --color-high-text:      #9a3412;
+  --color-high-border:    #e67e22;
+
+  --color-medium:         #f1c40f;
+  --color-medium-bg:      #fef9c3;
+  --color-medium-text:    #713f12;
+  --color-medium-border:  #f1c40f;
+
+  --color-low:            #27ae60;
+  --color-low-bg:         #d1fae5;
+  --color-low-text:       #065f46;
+  --color-low-border:     #27ae60;
+
+  --color-info:           #3b82d4;
+  --color-info-bg:        #dbeafe;
+  --color-info-text:      #1e40af;
+  --color-info-border:    #3b82d4;
+
+  /* ── Semantic states ─────────────────────────────────────────── */
+  --color-error:          #c0392b;
+  --color-error-bg:       #fdf0ef;
+  --color-error-border:   #f5c6c2;
+
+  --color-success-bg:     #d1fae5;
+  --color-success-text:   #065f46;
+
+  /* ── Navbar ──────────────────────────────────────────────────── */
+  --nav-bg:       #1f2328;
+  --nav-border:   #30363d;
+  --nav-height:   56px;
+
+  /* ── Radii & spacing ─────────────────────────────────────────── */
+  --radius-sm:  4px;
+  --radius-md:  6px;
+  --radius-lg:  8px;
+  --radius-pill: 20px;
+}

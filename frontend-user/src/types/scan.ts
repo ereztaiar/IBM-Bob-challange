@@ -1,31 +1,14 @@
 /**
  * Shared TypeScript types matching the backend scan schemas.
+ *
+ * Finding, Report, and Severity are authoritative in ui-shared and
+ * re-exported here so existing imports within this app continue to work.
  */
+
+export type { Finding, Report, Severity } from "ui-shared/components/FindingCard/types";
 
 /** Possible scan lifecycle states. */
 export type ScanStatus = "pending" | "running" | "completed" | "failed";
-
-/** Severity levels for a finding. */
-export type Severity = "critical" | "high" | "medium" | "low" | "info";
-
-/** A single vulnerability finding returned in the report. */
-export interface Finding {
-  category: string;
-  severity: Severity;
-  title: string;
-  description: string;
-  evidence: string;
-  remediation: string;
-}
-
-/** Report JSON embedded in a completed scan. */
-export interface Report {
-  url: string;
-  summary: string;
-  risk_score: number;
-  findings: Finding[];
-  recommendations: string[];
-}
 
 /** Response from POST /scans and GET /scans/{id}. */
 export interface ScanResponse {
@@ -35,5 +18,5 @@ export interface ScanResponse {
   created_at: string;
   completed_at: string | null;
   error_message: string | null;
-  report_json: Report | null;
+  report_json: import("ui-shared/components/FindingCard/types").Report | null;
 }
