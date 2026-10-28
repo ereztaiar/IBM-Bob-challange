@@ -16,6 +16,10 @@ from urllib.parse import urlparse
 import httpx
 
 from app.agents.graph import build_scan_graph
+from app.agents.prompt_sanitiser import (
+    PromptServiceUnavailableError,
+    sanitise_user_prompt,
+)
 from app.config import settings
 from app.db.session import AsyncSessionLocal
 from app.services import scan_service
@@ -23,7 +27,7 @@ from app.services import scan_service
 logger = logging.getLogger(__name__)
 
 
-async def run_scan(scan_id: str, url: str) -> None:
+async def run_scan(scan_id: str, url: str, user_prompt: str | None = None) -> None:
     """Background task: run the full agent pipeline for a given scan.
 
     Creates its own database session because the request-scoped session is
@@ -37,16 +41,39 @@ async def run_scan(scan_id: str, url: str) -> None:
     Args:
         scan_id: UUID string of the ``Scan`` row to update.
         url: The URL to scan.
+        user_prompt: Optional raw focus hint from the user; will be sanitised
+            before being forwarded to the LLM report writer.
     """
     logger.info("Starting scan %s for %s", scan_id, url)
 
     async with AsyncSessionLocal() as db:
         await scan_service.update_scan_status(scan_id, "running", db)
 
+    # Sanitise the user prompt before passing it into the LLM pipeline.
+    prompt_service_down = False
+    sanitised_prompt: str | None = None
+    if user_prompt:
+        try:
+            sanitised_prompt = await sanitise_user_prompt(user_prompt)
+        except PromptServiceUnavailableError:
+            logger.warning(
+                "Scan %s: AI sanitisation service unreachable; "
+                "proceeding without user prompt.",
+                scan_id,
+            )
+            prompt_service_down = True
+
     try:
         graph = build_scan_graph()
-        result = await graph.ainvoke({"url": url, "raw_responses": [], "findings": [],
-                                      "rag_context": [], "report": {}})
+        result = await graph.ainvoke({
+            "url": url,
+            "raw_responses": [],
+            "findings": [],
+            "rag_context": [],
+            "report": {},
+            "user_prompt": sanitised_prompt,
+            "prompt_service_down": prompt_service_down,
+        })
         report = result.get("report", {})
     except Exception as exc:  # noqa: BLE001
         logger.exception("Scan %s failed: %s", scan_id, exc)
@@ -67,6 +94,7 @@ async def run_scan(scan_id: str, url: str) -> None:
             db,
             completed_at=datetime.now(timezone.utc),
             report_json=report,
+            prompt_service_down=prompt_service_down,
         )
 
     logger.info("Scan %s completed successfully", scan_id)

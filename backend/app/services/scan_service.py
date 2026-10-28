@@ -25,7 +25,7 @@ async def create_scan(url: str, db: AsyncSession) -> Scan:
     Returns:
         The newly created ``Scan`` ORM instance (already flushed to the DB).
     """
-    scan = Scan(url=url, status="pending")
+    scan = Scan(url=url, status="pending", prompt_service_down=False)
     db.add(scan)
     await db.commit()
     await db.refresh(scan)
@@ -58,6 +58,7 @@ async def update_scan_status(
     completed_at: datetime | None = None,
     report_json: dict | None = None,
     error_message: str | None = None,
+    prompt_service_down: bool = False,
 ) -> None:
     """Update status and optional fields on a Scan row.
 
@@ -72,6 +73,8 @@ async def update_scan_status(
         completed_at: Timestamp to record when the scan finished.
         report_json: Full report payload to store on completion.
         error_message: Error description to store on failure.
+        prompt_service_down: True when the AI sanitisation service was
+            unreachable during this scan.
     """
     try:
         uid = uuid.UUID(scan_id)
@@ -90,5 +93,7 @@ async def update_scan_status(
         scan.report_json = report_json
     if error_message is not None:
         scan.error_message = error_message
+    if prompt_service_down:
+        scan.prompt_service_down = True
 
     await db.commit()

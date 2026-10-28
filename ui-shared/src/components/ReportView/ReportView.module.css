@@ -117,19 +117,3 @@
   margin: 0;
 }
 
-/* ── Reset button ────────────────────────────────────────────────── */
-.resetButton {
-  align-self: flex-start;
-  background: var(--color-accent-bg);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-border);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1.1rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.resetButton:hover {
-  background: #dbeafe;
-}

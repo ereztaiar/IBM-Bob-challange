@@ -57,6 +57,8 @@ class AgentState(TypedDict):
         findings: All findings collected across all check agents.
         rag_context: RAG-enriched context strings attached by the enricher node.
         report: Final structured JSON report produced by the report-writer node.
+        user_prompt: Optional sanitised focus hint provided by the user.
+        prompt_service_down: True when the AI sanitisation service was unreachable.
     """
 
     url: str
@@ -64,3 +66,5 @@ class AgentState(TypedDict):
     findings: Annotated[list[Finding], _merge_list]
     rag_context: list[str]
     report: dict
+    user_prompt: str | None
+    prompt_service_down: bool

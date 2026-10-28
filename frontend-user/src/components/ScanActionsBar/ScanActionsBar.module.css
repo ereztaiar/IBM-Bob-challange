@@ -1,0 +1,92 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  max-width: 760px;
+  margin: 0 auto 1.25rem;
+}
+
+.rescanButton {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.rescanButton:hover:not(:disabled) {
+  background: var(--color-accent-dark);
+}
+
+.rescanButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.newUrlForm {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.newUrlInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.newUrlInput:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 212, 0.15);
+}
+
+.newUrlInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.newUrlButton {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.newUrlButton:hover:not(:disabled) {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+}
+
+.newUrlButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  width: 100%;
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin: 0;
+}

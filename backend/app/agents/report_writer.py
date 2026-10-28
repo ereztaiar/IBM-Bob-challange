@@ -20,19 +20,34 @@ logger = logging.getLogger(__name__)
 _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*([\s\S]+?)\s*```", re.IGNORECASE)
 
 
-def _build_prompt(url: str, findings: list[dict], rag_context: list[str]) -> str:
-    """Construct the LLM prompt from findings and RAG context.
+def _build_prompt(
+    url: str,
+    findings: list[dict],
+    rag_context: list[str],
+    user_prompt: str | None = None,
+) -> str:
+    """Construct the LLM prompt from findings, RAG context, and an optional user focus hint.
+
+    When ``user_prompt`` is provided the LLM is instructed to pay particular
+    attention to that area of the target site.  The block is inserted between
+    the raw findings and the output-format instruction so the LLM sees it as
+    context before receiving the schema constraint.
 
     Args:
         url: The scanned URL.
         findings: List of Finding dicts.
         rag_context: RAG-retrieved context snippets.
+        user_prompt: Optional sanitised focus hint from the user.
 
     Returns:
         A formatted prompt string.
     """
     findings_text = json.dumps(findings, indent=2)
     context_text = "\n\n".join(rag_context) if rag_context else "No additional context available."
+
+    user_focus_block = ""
+    if user_prompt:
+        user_focus_block = f"\nUSER FOCUS REQUEST:\n{user_prompt}\n"
 
     return f"""You are a senior web-application security analyst. A vulnerability scan
 was performed against: {url}
@@ -42,7 +57,7 @@ RAG KNOWLEDGE CONTEXT:
 
 RAW FINDINGS (JSON):
 {findings_text}
-
+{user_focus_block}
 Based on the findings and context above, produce a structured security report.
 Your response MUST be valid JSON matching this exact schema:
 {{
@@ -178,6 +193,7 @@ async def report_writer_node(state: AgentState) -> dict:
     url = state["url"]
     findings = state.get("findings", [])
     rag_context = state.get("rag_context", [])
+    user_prompt: str | None = state.get("user_prompt")  # type: ignore[assignment]
 
     # Compute once — injected into both the LLM and fallback paths.
     risk_score = _compute_risk_score(findings)
@@ -185,7 +201,7 @@ async def report_writer_node(state: AgentState) -> dict:
     if not findings:
         return {"report": _fallback_report(url, [])}
 
-    prompt = _build_prompt(url, findings, rag_context)
+    prompt = _build_prompt(url, findings, rag_context, user_prompt)
 
     try:
         llm = get_llm()

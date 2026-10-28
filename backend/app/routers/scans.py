@@ -31,6 +31,7 @@ def _scan_to_status_response(scan) -> ScanStatusResponse:
         created_at=scan.created_at,
         completed_at=scan.completed_at,
         error_message=scan.error_message,
+        prompt_service_down=getattr(scan, "prompt_service_down", False) or False,
     )
 
 
@@ -51,6 +52,7 @@ def _scan_to_report_response(scan) -> ScanReportResponse:
         completed_at=scan.completed_at,
         error_message=scan.error_message,
         report_json=scan.report_json,
+        prompt_service_down=getattr(scan, "prompt_service_down", False) or False,
     )
 
 
@@ -88,7 +90,9 @@ async def submit_scan(
         ) from exc
 
     scan = await scan_service.create_scan(url_str, db)
-    background_tasks.add_task(scan_runner.run_scan, str(scan.id), url_str)
+    background_tasks.add_task(
+        scan_runner.run_scan, str(scan.id), url_str, request.user_prompt
+    )
 
     return _scan_to_status_response(scan)
 

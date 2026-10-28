@@ -1,9 +1,7 @@
 /**
  * ReportView — renders a completed vulnerability scan report.
  *
- * Accepts a `Report` object directly. The optional `onReset` prop renders
- * a "Scan another URL" button — used by the user frontend only; omit it in
- * the admin frontend where navigation is handled by the router.
+ * Accepts a `Report` object directly.
  *
  * Shared across the user and admin frontends via ui-shared.
  */
@@ -27,8 +25,6 @@ function scoreLevel(score: number): ScoreLevel {
 export interface ReportViewProps {
   /** The report to display. */
   report: Report;
-  /** When provided, renders a reset / "scan another" button. */
-  onReset?: () => void;
 }
 
 /**
@@ -36,7 +32,7 @@ export interface ReportViewProps {
  *
  * @param props - Component props.
  */
-export function ReportView({ report, onReset }: ReportViewProps): JSX.Element {
+export function ReportView({ report }: ReportViewProps): JSX.Element {
   const sorted = [...report.findings].sort((a, b) => {
     const ia = SEVERITY_ORDER.indexOf(a.severity as typeof SEVERITY_ORDER[number]);
     const ib = SEVERITY_ORDER.indexOf(b.severity as typeof SEVERITY_ORDER[number]);
@@ -93,11 +89,6 @@ export function ReportView({ report, onReset }: ReportViewProps): JSX.Element {
         )}
       </div>
 
-      {onReset && (
-        <button className={styles.resetButton} onClick={onReset}>
-          ← Scan another URL
-        </button>
-      )}
     </section>
   );
 }
