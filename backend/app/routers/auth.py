@@ -4,11 +4,9 @@ Exposes the admin login endpoint which validates credentials and returns a
 signed JWT.  All business logic is delegated to ``auth_service``.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, HTTPException, status
 
 from app.config import settings
-from app.dependencies import get_db
 from app.schemas.auth import AdminLoginRequest, TokenResponse
 from app.services import auth_service
 
@@ -18,7 +16,6 @@ router = APIRouter(tags=["auth"])
 @router.post("/auth/admin/login", response_model=TokenResponse)
 async def admin_login(
     request: AdminLoginRequest,
-    db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
     """Authenticate an admin with username and password.
 
@@ -27,8 +24,6 @@ async def admin_login(
 
     Args:
         request: Login payload containing ``username`` and ``password``.
-        db: Database session (injected; reserved for future credential
-            look-ups from the DB).
 
     Returns:
         A ``TokenResponse`` containing the signed JWT.
