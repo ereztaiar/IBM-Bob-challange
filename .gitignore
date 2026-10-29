@@ -38,3 +38,8 @@ out/
 *.swo
 .DS_Store
 Thumbs.db
+
+# -- Plans ----------------------------------------------------------------
+# Plan files are local working documents -- not committed.
+# The folder itself is kept via plans/.gitkeep.
+plans/*.md
