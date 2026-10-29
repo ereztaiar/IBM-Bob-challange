@@ -103,61 +103,11 @@ Key files:
 
 ---
 
-## Coding Standards
+## Rules
 
-### Size Limits
-- **Files:** max 300 lines. Extract to submodules when approaching the limit.
-- **Functions/methods:** max 50 lines. Extract helpers rather than growing a function.
+Enforceable coding standards, architecture constraints, and environment setup
+are defined in `.bob/rules/` and are automatically loaded by Bob in every session:
 
-### Documentation
-- **Python:** every function and class must have a docstring.
-- **TypeScript:** every exported function and component must have a JSDoc comment.
-- No undocumented public API surface.
-
-### Python
-- Type-annotate all function signatures.
-- Use `async def` throughout the FastAPI layer.
-- Pydantic v2 models for all request/response schemas.
-- Naming: `snake_case` for variables and functions, `PascalCase` for classes.
-- SOLID: single responsibility per module; use `BaseCheck` ABC for all agents.
-- DRY: shared logic in `services/` or `utils/` — never copy-pasted.
-
-### TypeScript / React
-- Strict mode on; no `any`.
-- Each React component in its own folder: `index.tsx` + CSS module + local types.
-- Common hooks in `src/hooks/`, utilities in `src/utils/` — not duplicated per component.
-- Naming: `camelCase` variables, `PascalCase` components and types.
-
-### Frontend Styling (consistency rule)
-- All shared visual components (`NavBar`, `FindingCard`, `ReportView`, `ScanSpinner`) must be imported from `ui-shared`, not re-implemented per frontend.
-- CSS values (colours, spacing, font sizes) must use the design tokens in `ui-shared/src/styles/variables.css` — no hardcoded hex or pixel values in component CSS modules.
-- Both `frontend-user` and `frontend-admin` are wired to `ui-shared` via the Vite alias `ui-shared → ../ui-shared/src`.
-
-### Migrations
-- Always generate an Alembic migration for every schema change; never alter the DB directly.
-- Vector columns are `vector(768)` — matched to `nomic-embed-text`. Changing the embedding model requires a new migration.
-
-### Tests
-- Every new backend function/service needs a unit test.
-- Mock all DB sessions and Ollama calls — no real network calls in tests.
-- Frontend: Vitest + Testing Library; test each component and hook.
-
-### Commits & Branches
-- Conventional commits: `feat(scope):`, `fix(scope):`, `chore:`, `merge:`.
-- Branch naming: `feat/<name>`, `fix/<name>`.
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `.env`. Required:
-
-| Variable | Description |
-|---|---|
-| `POSTGRES_PASSWORD` | PostgreSQL superuser password |
-| `OLLAMA_BASE_URL` | Ollama VM URL, e.g. `http://192.168.1.50:11434` |
-| `ADMIN_USERNAME` | Admin login (used for JWT validation — not the DB table) |
-| `ADMIN_PASSWORD` | Admin password |
-| `JWT_SECRET` | JWT signing secret (`openssl rand -hex 32`) |
-
-See `.env.example` for the full list.
+- `.bob/rules/coding-standards.md` — size limits, docs, Python, TypeScript, tests, commits
+- `.bob/rules/architecture.md` — service boundaries, agent pipeline, DB rules, RAG contract
+- `.bob/rules/environment.md` — required env vars, Ollama VM setup, embedding model
